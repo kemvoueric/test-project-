@@ -1,0 +1,21 @@
+---
+- name: Update apt and install packages 
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop:
+        - vim
+        - curl
+        - unzip
+        - python 
+        - python3
+        - python3-docker
+
+
+- name: "Run {{ item }}"
+  command: "{{ item }}"
+  loop: 
+    - ansible-galaxy collection install community.kubernetes
+    - apt-get install python-yaml -y
+    - pip3 install openshift
+    - ansible-galaxy collection install kubernetes.core

@@ -1,0 +1,37 @@
+---
+- name: Update apt cache and make sure Vim, Curl and Unzip are installed
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop:
+        - vim
+        - curl
+        - unzip
+
+- name: Ensure the myapp Namespace exists.
+  community.kubernetes.k8s:
+    api_version: v1
+    kind: Namespace
+    name: gloo-system
+    state: present
+
+
+- name: Add a repository stable
+  kubernetes.core.helm_repository:
+    name: stable
+    repo_url: https://storage.googleapis.com/solo-public-helm
+
+- name: Deploy latest version of gloo
+  community.kubernetes.helm:
+    name: gloo
+    chart_ref: stable/gloo
+    release_namespace: gloo-system
+    
+
+- name: Pause for 2  minutes 
+  pause:
+    minutes: 2
+
+
+ 
+

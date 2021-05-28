@@ -1,0 +1,89 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: docker, tags: docker }
+
+- hosts: localhost
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: kubernetes/master, tags: master }
+    - { role: cni, tags: cni }
+
+
+
+
+- hosts: localhost
+  gather_facts: yes
+  connection: local
+  become: yes
+  tasks:
+    - name: "update all install packages"
+      include_role:
+        name: update 
+      run_once: yes
+
+    - name: "install packages"
+      include_role:
+        name: packages
+      run_once: yes
+
+    - name: "docker-setup"
+      include_role:
+        name: docker-setup
+      run_once: yes
+
+    - name: "Create .kube file if it does not exists"
+      include_role:
+        name: kube
+      run_once: yes
+
+    - name: "Move Kubernetes config file if it exists"
+      include_role:
+        name: move-config-file 
+      run_once: yes
+ 
+    - name: "taint nodes"
+      include_role:
+        name: taint-nodes
+      run_once: yes
+
+    - name: "Helm role"
+      include_role:
+        name: helm
+      run_once: yes
+
+    - name: "MetalLB role"
+      include_role:
+        name: metallb
+      run_once: yes
+    
+    - name: "Gloo"
+      include_role:
+        name: gloo
+      run_once: yes
+
+
+    - name: "docker"
+      include_role:
+        name: docker
+      run_once: yes
+
+
+    - name: "Healthcheck role"
+      include_role:
+       name: healthcheck
+      run_once: yes
+
+
+    - name: "load docker images"
+      include_role:
+       name: docker-images
+      run_once: yes
+
+    - name: "deploy helm chart"
+      include_role:
+       name: helm-charts
+      run_once: yes
